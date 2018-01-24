@@ -3,4 +3,4 @@ applications:
 - name: dsg-rest-service
   memory: 256M
   instances: 1
-  path: ./build/demo-0.0.1-SNAPSHOT.jar
+  path: ./target/demo-0.0.1-SNAPSHOT.jar

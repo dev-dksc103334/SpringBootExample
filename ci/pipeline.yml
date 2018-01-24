@@ -33,10 +33,10 @@ jobs:
   serial: true
   public: true
   plan:
-  - get: SpringBootExample
+  - get: SpringBootExample 
     trigger: true
-    passed:
-        package
+    passed: 
+    - package
   - put: PWS
     params:
       manifest: SpringBootExample/test-api-master/manifest.yml
