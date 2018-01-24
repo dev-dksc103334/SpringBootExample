@@ -10,8 +10,9 @@ inputs:
   - name: SpringBootExample
 
 run:
-  path: "SpringBootExample/mvn"
+  path: "SpringBootExample/test-api-master/mvnw"
   args: ["-f", "SpringBootExample/pom.xml", "-Dmaven.test.skip=true", "package"]
 
 params:
   MAVEN_BASEDIR: SpringBootExample
+
