@@ -1,0 +1,17 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: sonarqube
+    tag: latest
+
+inputs:
+  - name: SpringBootExample
+
+run:
+  path: "SpringBootExample/mvn"
+  args: ["-f", "SpringBootExample/pom.xml", "-Dmaven.test.skip=true", "package"]
+
+params:
+  MAVEN_BASEDIR: SpringBootExample

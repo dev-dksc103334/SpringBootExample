@@ -1,0 +1,60 @@
+groups:
+- name: main
+  jobs:
+  - package
+  - deploy-app
+
+resources:
+- name: SpringBootExample
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/dev-dksc103334/SpringBootExample.git 
+- name: PWS
+  type: cf
+  source:
+    api: {{pws-api}}
+    organization: {{pws-organization}}
+    username: {{deploy-username}}
+    password: {{deploy-password}}
+    skip_cert_check: true
+    space: {{pws-space}}
+
+jobs:
+- name: package
+  plan:
+  - get: SpringBootExample
+    trigger: true
+  - task: package
+    privileged: true
+    file: SpringBootExample/ci/tasks/package.yml
+- name: deploy-app
+  serial: true
+  public: true
+  plan:
+  - get: SpringBootExample
+    trigger: true
+  - put: PWS
+    params:
+      manifest: SpringBootExample/test-api-master/manifest.yml
+#      path: SpringBootExample/test-api-master
+
+
+- name: promote-new-version
+  serial: true
+  public: true
+  plan:
+  - get: SpringBootExample
+    trigger: true
+# - task: email-notification-failure
+#      file: <your-resource-directory-location-goes-here>/send-email.yml
+#      params:
+#        SMTP_HOST: <<your-smtp-host-goes-here  e.g. smtp.gmail.com>
+#        SMTP_PORT: <<your-smtp-server-port-number  e.g. 465>
+#        SMTP_USERNAME: <<your-email-id-with-encoded-@-sign  e.g. myemail%40gmai.com >
+#        SMTP_PASSWORD: <your-email-password>
+#        EMAIL_FROM: <the-sender-email-address-without-enconding   e.g. myemail@gmail.com>
+#        EMAIL_TO: <the-list-of-comma-separated-destination-emails-without-encoding  e.g. him@there.com,her@here.net>
+#        EMAIL_SUBJECT_TEXT: <email-subject-message   e.g. Hello there>
+#        EMAIL_BODY_TEXT: <email-body-text   e.g. This is my email body.>
+#        EMAIL_ATTACHMENTS: <json-array-with-attachments-info. See format below. Omit this field if no attachment is needed>
