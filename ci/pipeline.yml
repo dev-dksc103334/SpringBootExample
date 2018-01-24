@@ -28,16 +28,18 @@ jobs:
   - task: package
     privileged: true
     file: SpringBootExample/ci/tasks/package.yml
+
 - name: deploy-app
   serial: true
   public: true
   plan:
   - get: SpringBootExample
     trigger: true
+    passed:
+        package
   - put: PWS
     params:
       manifest: SpringBootExample/test-api-master/manifest.yml
-#      path: SpringBootExample/test-api-master
 
 
 - name: promote-new-version
