@@ -52,7 +52,7 @@ jobs:
   serial: true
   public: true
   plan:
-  - get: azure-blob
+  - get: azure-blobstore
   - get: SpringBootExample 
     trigger: true
     passed: 
