@@ -8,7 +8,7 @@ image_resource:
 
 inputs:
 - name: target
-  path: test-api-master
+#  path: test-api-master
 outputs:
 - name: target2 
 
