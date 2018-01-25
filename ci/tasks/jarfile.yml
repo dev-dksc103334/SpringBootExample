@@ -9,4 +9,4 @@ image_resource:
 inputs:
   - name: target
 outputs:
-  - name: target 
+  - name: target2 
