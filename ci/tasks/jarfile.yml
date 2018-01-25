@@ -7,10 +7,10 @@ image_resource:
     tag: latest
 
 inputs:
-  - name: target
+- name: target
   path: test-api-master
 outputs:
-  - name: target2 
+- name: target2 
 
 run:
   path: sh
