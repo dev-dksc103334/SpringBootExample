@@ -28,10 +28,6 @@ jobs:
   - task: package
     privileged: true
     file: SpringBootExample/ci/tasks/package.yml
-    inputs:
-    - name: SpringBootExample
-    outputs:
-    - name: target
 
 - name: deploy-app
   serial: true
