@@ -27,13 +27,14 @@ resources:
     skip_cert_check: true
     space: {{pws-space}}
 
-- name: azure-blob
+- name: azure-blobstore
   type: azure-blob
   source:
     container: {{azure-cont}} 
     storage_account_name: {{storage_account_name}}
     storage_access_key: {{storage_access_key}}
     regexp: java-spring/demo-([0-9\.]+)-([\w]+).jar
+    environment: AzureCloud
 
 
 jobs:
@@ -44,7 +45,8 @@ jobs:
   - task: package
     privileged: true
     file: SpringBootExample/ci/tasks/package.yml
-  - put: azure-blob
+  - put: azure-blobstore
+    params: { file: ./target/demo-*.jar }
 
 - name: deploy-app
   serial: true
