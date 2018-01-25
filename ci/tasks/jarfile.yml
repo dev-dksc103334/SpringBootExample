@@ -8,10 +8,13 @@ image_resource:
 
 inputs:
   - name: target
+  path: test-api-master
 outputs:
   - name: target2 
 
 run:
   path: sh
   args:
-  - -exc mv target/demo-0.0.1-SNAPSHOT.jar target2/demo-0.0.1-SNAPSHOT.jar
+  - -exc 
+  - |
+    mv target/demo-0.0.1-SNAPSHOT.jar target2/demo-0.0.1-SNAPSHOT.jar
