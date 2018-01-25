@@ -46,7 +46,7 @@ jobs:
     privileged: true
     file: SpringBootExample/ci/tasks/package.yml
   - put: azure-blobstore
-    params: { file: ./target/demo-*.jar }
+    params: { file: ./test-api-master/target/demo-*.jar }
 
 - name: deploy-app
   serial: true
