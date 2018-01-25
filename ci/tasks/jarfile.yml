@@ -10,3 +10,8 @@ inputs:
   - name: target
 outputs:
   - name: target2 
+
+run:
+  path: sh
+  args:
+  - -exc mv target target2
