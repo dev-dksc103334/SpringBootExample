@@ -4,12 +4,19 @@ groups:
   - package
   - deploy-app
 
+resource_types:
+- name: azure-blob
+  type: docker-image
+  source:
+    repository: cfcloudops/azure-blobstore-concourse-resource
+
 resources:
 - name: SpringBootExample
   type: git
   source:
     branch: master
     uri: https://github.com/dev-dksc103334/SpringBootExample.git 
+
 - name: PWS
   type: cf
   source:
@@ -20,6 +27,15 @@ resources:
     skip_cert_check: true
     space: {{pws-space}}
 
+- name: azure-blob
+  type: azure-blob
+  source:
+    container: {{azure-cont}} 
+    storage_account_name: {{storage_account_name}}
+    storage_access_key: {{storage_access_key}}
+    regexp: java-spring/demo-([0-9\.]+)-([\w]+).jar
+
+
 jobs:
 - name: package
   plan:
@@ -28,11 +44,13 @@ jobs:
   - task: package
     privileged: true
     file: SpringBootExample/ci/tasks/package.yml
+  - put: azure-blob
 
 - name: deploy-app
   serial: true
   public: true
   plan:
+  - get: azure-blob
   - get: SpringBootExample 
     trigger: true
     passed: 
