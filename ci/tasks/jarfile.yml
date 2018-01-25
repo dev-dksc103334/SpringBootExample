@@ -14,4 +14,4 @@ outputs:
 run:
   path: sh
   args:
-  - -exc mv target target2
+  - -exc mv target/demo-0.0.1-SNAPSHOT.jar target2/demo-0.0.1-SNAPSHOT.jar
