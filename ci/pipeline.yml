@@ -34,7 +34,8 @@ resources:
     storage_account_name: {{storage_account_name}}
     storage_access_key: {{storage_access_key}}
     regexp: java-spring/demo-([0-9\.]+)-([\w]+).jar
-    environment: AzureCloud
+    #environment: AzureCloud
+    versioned_file: demo-0.0.1-SNAPSHOT.jar
 
 
 jobs:
@@ -46,7 +47,7 @@ jobs:
     privileged: true
     file: SpringBootExample/ci/tasks/package.yml
   - put: azure-blobstore
-    params: { file: ./test-api-master/target/demo-*.jar }
+    params: { file: ./demo-0.0.1-SNAPSHOT.jar }
 
 - name: deploy-app
   serial: true
