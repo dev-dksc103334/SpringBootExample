@@ -9,7 +9,8 @@ image_resource:
 inputs:
   - name: SpringBootExample
 outputs:
-    - name: test-api-master/target
+    - name: target
+    - path: test-api-master
 run:
   path: "mvn"
   args: ["-f", "SpringBootExample/test-api-master/pom.xml", "-Dmaven.test.skip=true", "package"]

@@ -37,6 +37,9 @@ jobs:
     trigger: true
     passed: 
     - package
+  - task: jarfile
+    privileged: true
+    file: SpringBootExample/ci/tasks/jarfile.yml 
   - put: PWS
     params:
       manifest: SpringBootExample/test-api-master/manifest.yml
