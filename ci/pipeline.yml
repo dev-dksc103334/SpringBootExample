@@ -33,9 +33,9 @@ resources:
     container: {{azure-cont}} 
     storage_account_name: {{storage_account_name}}
     storage_access_key: {{storage_access_key}}
-    regexp: java-spring/demo-([0-9\.]+)-([\w]+).jar
-    #environment: AzureCloud
-    versioned_file: demo-0.0.1-SNAPSHOT.jar
+    regexp: demo-([0-9\.]+)-([\w]+).jar
+    environment: AzureCloud
+    #versioned_file: demo-0.0.1-SNAPSHOT.jar
 
 
 jobs:
@@ -45,9 +45,32 @@ jobs:
     trigger: true
   - task: package
     privileged: true
-    file: SpringBootExample/ci/tasks/package.yml
+    #file: SpringBootExample/ci/tasks/package.yml
+    config:
+       platform: linux
+       image_resource:
+          type: docker-image
+          source:
+             repository: maven
+             tag: latest
+       inputs:
+          - name: SpringBootExample
+       outputs:
+          - name: target
+       run:
+#          path: "mvn"
+#          args: ["-f", "SpringBootExample/test-api-master/pom.xml", "-Dmaven.test.skip=true", "package"]
+          path: sh
+          args:
+          - -exc
+          - |
+           mvn -f SpringBootExample/test-api-master/pom.xml package
+           pwd
+           mv SpringBootExample/test-api-master/target/demo-*.jar target/
+       params:
+          MAVEN_BASEDIR: SpringBootExample/test-api-master
   - put: azure-blobstore
-    params: { file: ./demo-0.0.1-SNAPSHOT.jar }
+    params: { file: ./target/demo-0.0.1-SNAPSHOT.jar }
 
 - name: deploy-app
   serial: true
@@ -58,12 +81,37 @@ jobs:
     trigger: true
     passed: 
     - package
-  - task: jarfile
+  - task: deploy-cf 
     privileged: true
-    file: SpringBootExample/ci/tasks/jarfile.yml 
+    #file: SpringBootExample/ci/tasks/jarfile.yml 
+    config: 
+      platform: linux
+      image_resource:
+         type: docker-image
+         source:
+           repository: alpine
+           tag: latest
+
+      inputs:
+      - name: azure-blobstore 
+      - name: SpringBootExample
+     #  path: test-api-master
+      outputs:
+      - name: spb-app 
+
+      run:
+       path: sh
+       args:
+       - -exc
+       - |
+         find .
+         pwd
+         cp -pr SpringBootExample/test-api-master spb-app/
+         mkdir -p spb-app/test-api-master/target
+         cp ./azure-blobstore/demo-0.0.1-SNAPSHOT.jar spb-app/test-api-master/target/
   - put: PWS
     params:
-      manifest: SpringBootExample/test-api-master/manifest.yml
+      manifest: spb-app/test-api-master/manifest.yml
 
 
 - name: promote-new-version
