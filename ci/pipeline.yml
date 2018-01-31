@@ -10,7 +10,26 @@ resource_types:
   source:
     repository: cfcloudops/azure-blobstore-concourse-resource
 
+#- name: http-api
+#  type: docker-image
+#  source:
+#   repository: aequitas/http-api-resource
+#   tag: latest
+
 resources:
+#- name: hipchat
+#  type: http-api
+#  source:
+#          uri: https://projecteagle.hipchat.com/v2/room/3318095/notification
+#          method: POST
+#          headers:
+#              Authorization: "Bearer {hipchat_token}"
+#          json:
+#              color: "{color}"
+#              message: "Build {BUILD_PIPELINE_NAME}{BUILD_JOB_NAME}, nr: {BUILD_NAME} {message}!"
+#          hipchat_token: {{HIPCHAT_TOKEN}}
+
+
 - name: SpringBootExample
   type: git
   source:
@@ -33,7 +52,8 @@ resources:
     container: {{azure-cont}} 
     storage_account_name: {{storage_account_name}}
     storage_access_key: {{storage_access_key}}
-    regexp: demo-([0-9\.]+)-([\w]+).jar
+    #regexp: demo-([0-9\.]+)-([\w]+).jar
+    regexp: springBootDemo-([0-9\.]+).tar.gz 
     environment: AzureCloud
     #versioned_file: demo-0.0.1-SNAPSHOT.jar
 
@@ -66,24 +86,34 @@ jobs:
           - |
            mvn -f SpringBootExample/test-api-master/pom.xml package
            pwd
-           mv SpringBootExample/test-api-master/target/demo-*.jar target/
+           cd SpringBootExample/test-api-master/
+           tar -czf springBootDemo-0.0.1.tar.gz target/demo-*.jar manifest.yml 
+           mv springBootDemo-*.gz ../../target/
        params:
           MAVEN_BASEDIR: SpringBootExample/test-api-master
   - put: azure-blobstore
-    params: { file: ./target/demo-0.0.1-SNAPSHOT.jar }
+    params: { file: ./target/springBootDemo-0.0.1.tar.gz }
+#  on_success:
+#              put: hipchat
+#              params:
+#                    color: green
+#                    message: was a success
+#  on_failure:
+#              put: hipchat
+##              params:
+#                    color: red
+#                    message: failed horribly     
 
 - name: deploy-app
   serial: true
   public: true
   plan:
   - get: azure-blobstore
-  - get: SpringBootExample 
     trigger: true
     passed: 
     - package
   - task: deploy-cf 
     privileged: true
-    #file: SpringBootExample/ci/tasks/jarfile.yml 
     config: 
       platform: linux
       image_resource:
@@ -94,8 +124,6 @@ jobs:
 
       inputs:
       - name: azure-blobstore 
-      - name: SpringBootExample
-     #  path: test-api-master
       outputs:
       - name: spb-app 
 
@@ -104,14 +132,14 @@ jobs:
        args:
        - -exc
        - |
+         mkdir -p spb-app/target
+         cd spb-app
+         tar -xzf ../azure-blobstore/springBootDemo-0.0.1.tar.gz
          find .
-         pwd
-         cp -pr SpringBootExample/test-api-master spb-app/
-         mkdir -p spb-app/test-api-master/target
-         cp ./azure-blobstore/demo-0.0.1-SNAPSHOT.jar spb-app/test-api-master/target/
+
   - put: PWS
     params:
-      manifest: spb-app/test-api-master/manifest.yml
+      manifest: spb-app/manifest.yml
 
 
 - name: promote-new-version
